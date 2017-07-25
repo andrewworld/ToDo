@@ -10,7 +10,7 @@ export default StyleSheet.create({
     height: 56,
     backgroundColor: '#212121'
   },
-  separator: {
+  footer: {
     height: 8
   },
   header: {
@@ -55,5 +55,17 @@ export default StyleSheet.create({
   itemIcon: {
     color: '#ffffff',
     marginRight: 20
+  },
+  emptyViewContainer: {
+    flex: 1,
+    marginTop: 144,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  emptyViewText: {
+    fontSize: 24,
+    includeFontPadding: false,
+    textAlignVertical: 'center',
+    fontWeight: 'bold'
   }
 })

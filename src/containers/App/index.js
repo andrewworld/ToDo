@@ -19,6 +19,8 @@ const STATUS_IN_PROGRESS = 0
 const STATUS_DONE = 1
 const MAX_COLOR_LIGHTNESS = 75
 const MIN_COLOR_LIGHTNESS = 25
+const COLOR_HUE = 25
+const COLOR_SATURATION = 80
 
 UIManager.setLayoutAnimationEnabledExperimental &&
 UIManager.setLayoutAnimationEnabledExperimental(true)
@@ -29,13 +31,12 @@ export default class App extends React.Component {
 
   renderEmptyView = () => {
     return (
-      <View style={{flex: 1, marginTop: 144, justifyContent: 'center', alignItems: 'center'}}>
+      <View style={styles.emptyViewContainer}>
         <Text
-          style={{
-            color: `hsl(25, 100%, ${MAX_COLOR_LIGHTNESS}%)`,
-            fontSize: 24,
-            fontWeight: '500'
-          }}>{`THE\nBEST\nTO-DO APP\nEVER`}</Text>
+          style={
+            [styles.emptyViewText,
+              {color: `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS}%)`}
+            ]}>{`THE\nBEST\nTO-DO APP\nEVER`}</Text>
       </View>
     )
   }
@@ -52,8 +53,10 @@ export default class App extends React.Component {
         <TextInput
           value={tmpTaskText}
           autoFocus={true}
-          style={[styles.headerTextInput, {color: `hsl(25, 100%, ${MAX_COLOR_LIGHTNESS}%)`}]}
+          style={[styles.headerTextInput, {color: `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS}%)`}]}
           selectionColor={'#909090'}
+          placeholderTextColor={'#909090'}
+          placeholder={'Enter your task here...'}
           autoCapitalize={'sentences'}
           underlineColorAndroid={'#00000000'}
           onChangeText={(text) => this.setState({tmpTaskText: text})}
@@ -64,12 +67,12 @@ export default class App extends React.Component {
         <View style={{flexDirection: 'row'}}>
           <Text
             style={[styles.headerPlusText, {
-              borderColor: tasks.length === 0 ? '#303030' : `hsl(25, 100%, ${MAX_COLOR_LIGHTNESS}%)`,
-              color: tasks.length === 0 ? '#303030' : `hsl(25, 100%, ${MAX_COLOR_LIGHTNESS}%)`
+              borderColor: tasks.length === 0 ? '#303030' : `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS}%)`,
+              color: tasks.length === 0 ? '#303030' : `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS}%)`
             }]}>{'+'}</Text>
           <Text
             style={[styles.headerText, {
-              color: tasks.length === 0 ? '#303030' : `hsl(25, 100%, ${MAX_COLOR_LIGHTNESS}%)`
+              color: tasks.length === 0 ? '#303030' : `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS}%)`
             }]}>{'Create new task'}</Text>
         </View>)
     }
@@ -83,8 +86,11 @@ export default class App extends React.Component {
             styles.header,
             borderStyle,
             {
-              backgroundColor: (tasks.length === 0 && !isTaskCreating) ? `hsl(25, 100%, ${MAX_COLOR_LIGHTNESS}%)` : '#303030',
-              borderColor: `hsl(25, 100%, ${MAX_COLOR_LIGHTNESS}%)`
+              elevation: (tasks.length === 0 && !isTaskCreating) ? 4 : 0,
+              backgroundColor: (tasks.length === 0 && !isTaskCreating)
+                ? `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS}%)`
+                : '#303030',
+              borderColor: `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS}%)`
             }
           ]}>
           {view}
@@ -123,7 +129,10 @@ export default class App extends React.Component {
             styles.item,
             borderStyle,
             {
-              backgroundColor: `hsl(25, 100%, ${MAX_COLOR_LIGHTNESS - (index * (MAX_COLOR_LIGHTNESS - MIN_COLOR_LIGHTNESS) / tasks.length)}%)`,
+              elevation: item.highlighted ? 4 : 0,
+              marginTop: item.highlighted ? 8 : 0,
+              marginBottom: item.highlighted ? 8 : 0,
+              backgroundColor: `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS - (index * (MAX_COLOR_LIGHTNESS - MIN_COLOR_LIGHTNESS) / tasks.length)}%)`,
             }
           ]}>
           <Icon
@@ -221,19 +230,15 @@ export default class App extends React.Component {
 
   render () {
     let {tasks} = this.state
-    let actions = [{title: 'Settings', iconName: 'settings', show: 'always'}]
-
-    if (tasks.some((item) => item.highlighted)) actions.push({title: 'Delete', iconName: 'delete', show: 'always'})
 
     return (
       <View style={styles.container}>
         <StatusBar
           backgroundColor={'#000'}
-          barStyle="light-content"
-        />
+          barStyle="light-content"/>
         <Icon.ToolbarAndroid
           style={styles.toolbar}
-          title="TO-DO List"
+          title="ToDo"
           actions={[{title: 'Delete', iconName: 'delete', show: 'always'}]}
           onActionSelected={this.onActionSelected}
           titleColor={'#ffffff'}/>
@@ -243,8 +248,7 @@ export default class App extends React.Component {
           renderItem={this.renderItem}
           ListEmptyComponent={this.renderEmptyView}
           ListHeaderComponent={this.renderHeader}
-          ListFooterComponent={() => <View style={styles.separator}/>}
-        />
+          ListFooterComponent={() => <View style={styles.footer}/>}/>
       </View>
     )
   }
