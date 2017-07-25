@@ -1,25 +1,22 @@
 import React from 'react'
 import {
-  Alert,
   FlatList,
   LayoutAnimation,
   NativeModules,
   StatusBar,
   Text,
   TextInput,
-  ToolbarAndroid,
   TouchableNativeFeedback,
   View
 } from 'react-native'
 import styles from './styles'
 import { getTasks, setTasks } from '../../helpers/dbHelper'
+import Icon from 'react-native-vector-icons/MaterialIcons'
 
 const {UIManager} = NativeModules
 
-const STATE_EXPANDED = 0
-const STATE_COLLAPSED = 1
-const ITEM_HEIGHT_EXPANDED = 196
-const ITEM_HEIGHT_COLLAPSED = 68
+const STATUS_IN_PROGRESS = 0
+const STATUS_DONE = 1
 const MAX_COLOR_LIGHTNESS = 75
 const MIN_COLOR_LIGHTNESS = 25
 
@@ -28,7 +25,7 @@ UIManager.setLayoutAnimationEnabledExperimental(true)
 
 export default class App extends React.Component {
 
-  state = {tasks: [], isCreating: false, tmpTaskText: ''}
+  state = {tasks: [], isTaskCreating: false, tmpTaskText: ''}
 
   renderEmptyView = () => {
     return (
@@ -44,16 +41,16 @@ export default class App extends React.Component {
   }
 
   renderHeader = () => {
-    let {tasks} = this.state
+    let {tasks, isTaskCreating, tmpTaskText} = this.state
     let borderStyle, view
 
     if (tasks.length === 0) borderStyle = {borderRadius: 2, borderWidth: 3.5}
     else borderStyle = {borderTopLeftRadius: 2, borderTopRightRadius: 2, borderWidth: 3.5}
 
-    if (this.state.isCreating) {
+    if (isTaskCreating) {
       view = (
         <TextInput
-          value={this.state.tmpTaskText}
+          value={tmpTaskText}
           autoFocus={true}
           style={[styles.headerTextInput, {color: `hsl(25, 100%, ${MAX_COLOR_LIGHTNESS}%)`}]}
           selectionColor={'#909090'}
@@ -86,8 +83,7 @@ export default class App extends React.Component {
             styles.header,
             borderStyle,
             {
-              backgroundColor: (tasks.length === 0 && !this.state.isCreating) ? `hsl(25, 100%, ${MAX_COLOR_LIGHTNESS}%)` : '#303030',
-              height: ITEM_HEIGHT_COLLAPSED,
+              backgroundColor: (tasks.length === 0 && !isTaskCreating) ? `hsl(25, 100%, ${MAX_COLOR_LIGHTNESS}%)` : '#303030',
               borderColor: `hsl(25, 100%, ${MAX_COLOR_LIGHTNESS}%)`
             }
           ]}>
@@ -99,17 +95,21 @@ export default class App extends React.Component {
 
   renderItem = ({item, index}) => {
     let {tasks} = this.state
-    let height, borderStyle
+    let textDecorationLine, iconDisplay, borderStyle
 
     if (index === tasks.length - 1) borderStyle = {borderBottomLeftRadius: 2, borderBottomRightRadius: 2}
     else borderStyle = {}
 
-    switch (item.state) {
-      case STATE_COLLAPSED:
-        height = ITEM_HEIGHT_COLLAPSED
+    if (item.highlighted) borderStyle = {...borderStyle, borderWidth: 3.5, borderColor: '#ffffff'}
+
+    switch (item.status) {
+      case STATUS_IN_PROGRESS:
+        iconDisplay = 'none'
+        textDecorationLine = 'none'
         break
-      case STATE_EXPANDED:
-        height = ITEM_HEIGHT_EXPANDED
+      case STATUS_DONE:
+        iconDisplay = 'flex'
+        textDecorationLine = 'line-through'
         break
     }
 
@@ -123,33 +123,18 @@ export default class App extends React.Component {
             styles.item,
             borderStyle,
             {
-              height,
               backgroundColor: `hsl(25, 100%, ${MAX_COLOR_LIGHTNESS - (index * (MAX_COLOR_LIGHTNESS - MIN_COLOR_LIGHTNESS) / tasks.length)}%)`,
-              justifyContent: 'center',
             }
           ]}>
-          <Text style={styles.itemTitle}>{item.title}</Text>
+          <Icon
+            style={[styles.itemIcon, {display: iconDisplay}]}
+            name={'done'}
+            size={24}
+          />
+          <Text style={[styles.itemTitle, {textDecorationLine}]}>{item.title}</Text>
         </View>
       </TouchableNativeFeedback>
     )
-  }
-
-  removeAllItems = async () => {
-    await setTasks([])
-
-    this.setState({tasks: []})
-    LayoutAnimation.spring()
-  }
-
-  removeItem = async (item, index) => {
-    let {tasks} = this.state
-
-    tasks.splice(index, 1)
-
-    await setTasks(tasks.map(item => item))
-
-    this.setState({tasks: tasks.map(item => item)})
-    LayoutAnimation.spring()
   }
 
   onEndEditing = async () => {
@@ -157,30 +142,35 @@ export default class App extends React.Component {
 
     if (tmpTaskText && tmpTaskText.trim() !== '') {
       tasks.unshift({
-        date: new Date(),
         title: tmpTaskText,
-        state: STATE_COLLAPSED
+        status: STATUS_IN_PROGRESS,
+        highlighted: false
       })
 
       await setTasks(tasks.map(item => item))
 
-      this.setState({isCreating: false, tasks: tasks.map(item => item), tmpTaskText: ''})
+      this.setState({isTaskCreating: false, tasks: tasks.map(item => item), tmpTaskText: ''})
       LayoutAnimation.spring()
     } else {
-      this.setState({isCreating: false, tmpTaskText: ''})
+      this.setState({isTaskCreating: false, tmpTaskText: ''})
     }
   }
 
   onPressItem = async (item, index) => {
     let {tasks} = this.state
 
-    switch (item.state) {
-      case STATE_COLLAPSED:
-        tasks[index] = {...item, state: STATE_EXPANDED}
-        break
-      case STATE_EXPANDED:
-        tasks[index] = {...item, state: STATE_COLLAPSED}
-        break
+    if (tasks.some((item) => item.highlighted)) {
+      if (item.highlighted) tasks[index] = {...item, highlighted: false}
+      else tasks[index] = {...item, highlighted: true}
+    } else {
+      switch (item.status) {
+        case STATUS_IN_PROGRESS:
+          tasks[index] = {...item, status: STATUS_DONE}
+          break
+        case STATUS_DONE:
+          tasks[index] = {...item, status: STATUS_IN_PROGRESS}
+          break
+      }
     }
 
     await setTasks(tasks.map(item => item))
@@ -189,21 +179,34 @@ export default class App extends React.Component {
     LayoutAnimation.spring()
   }
 
-  onLongPressItem = (item, index) => {
-    Alert.alert(
-      `Remove ${item.title}`,
-      'Are you sure?',
-      [
-        {text: 'CANCEL', style: 'cancel'},
-        {text: 'REMOVE', onPress: () => this.removeItem(item, index)},
-        {text: 'REMOVE ALL', onPress: () => this.removeAllItems()}
-      ],
-      {cancelable: true}
-    )
+  onLongPressItem = async (item, index) => {
+    let {tasks} = this.state
+
+    if (item.highlighted) {
+      tasks[index] = {...item, highlighted: false}
+    } else {
+      tasks[index] = {...item, highlighted: true}
+    }
+
+    await setTasks(tasks.map(item => item))
+
+    this.setState({tasks: tasks.map(item => item)})
+    LayoutAnimation.spring()
   }
 
   onPressHeader = () => {
-    this.setState({isCreating: true})
+    this.setState({isTaskCreating: true})
+  }
+
+  onActionSelected = async () => {
+    let {tasks} = this.state
+
+    let notHighlightedTasks = tasks.filter((item, index, arr) => !item.highlighted)
+
+    await setTasks(notHighlightedTasks)
+
+    this.setState({tasks: notHighlightedTasks})
+    LayoutAnimation.spring()
   }
 
   async componentDidMount () {
@@ -211,11 +214,16 @@ export default class App extends React.Component {
 
     if (tasks) {
       this.setState({tasks})
+    } else {
+      await setTasks(this.state.tasks)
     }
   }
 
   render () {
     let {tasks} = this.state
+    let actions = [{title: 'Settings', iconName: 'settings', show: 'always'}]
+
+    if (tasks.some((item) => item.highlighted)) actions.push({title: 'Delete', iconName: 'delete', show: 'always'})
 
     return (
       <View style={styles.container}>
@@ -223,9 +231,11 @@ export default class App extends React.Component {
           backgroundColor={'#000'}
           barStyle="light-content"
         />
-        <ToolbarAndroid
+        <Icon.ToolbarAndroid
           style={styles.toolbar}
           title="TO-DO List"
+          actions={[{title: 'Delete', iconName: 'delete', show: 'always'}]}
+          onActionSelected={this.onActionSelected}
           titleColor={'#ffffff'}/>
         <FlatList
           keyExtractor={(item, index) => index}

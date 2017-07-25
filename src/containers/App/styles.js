@@ -16,7 +16,7 @@ export default StyleSheet.create({
   header: {
     marginLeft: 8,
     marginRight: 8,
-    padding: 12,
+    padding: 18,
     marginTop: 8,
     justifyContent: 'center',
   },
@@ -37,20 +37,23 @@ export default StyleSheet.create({
   },
   headerTextInput: {
     fontSize: 18,
-    height: 48,
+    margin: 0,
+    padding: 0
   },
   item: {
     marginLeft: 8,
     marginRight: 8,
-    padding: 12,
-    justifyContent: 'center'
+    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center'
   },
   itemTitle: {
+    flex: 1,
     fontSize: 18,
     color: '#FFFFFF'
   },
-  itemDescription: {
-    fontSize: 16,
-    color: '#FFFFFF'
+  itemIcon: {
+    color: '#ffffff',
+    marginRight: 20
   }
 })
