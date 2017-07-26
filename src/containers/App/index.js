@@ -17,6 +17,13 @@ const {UIManager} = NativeModules
 
 const STATUS_IN_PROGRESS = 0
 const STATUS_DONE = 1
+
+const ACTION_SELECT_ALL = 0
+const ACTION_DELETE = 1
+
+const POSITION_UNDER_TOOLBAR = 0
+const POSITION_BEFORE_TOOLBAR = 1
+
 const MAX_COLOR_LIGHTNESS = 75
 const MIN_COLOR_LIGHTNESS = 25
 const COLOR_HUE = 25
@@ -25,9 +32,14 @@ const COLOR_SATURATION = 80
 UIManager.setLayoutAnimationEnabledExperimental &&
 UIManager.setLayoutAnimationEnabledExperimental(true)
 
-export default class App extends React.Component {
+export default class App extends React.PureComponent {
 
-  state = {tasks: [], isTaskCreating: false, tmpTaskText: ''}
+  state = {
+    scrollPosition: POSITION_BEFORE_TOOLBAR,
+    tasks: [],
+    tmpTaskText: '',
+    isTaskCreating: false
+  }
 
   renderEmptyView = () => {
     return (
@@ -106,7 +118,7 @@ export default class App extends React.Component {
     if (index === tasks.length - 1) borderStyle = {borderBottomLeftRadius: 2, borderBottomRightRadius: 2}
     else borderStyle = {}
 
-    if (item.highlighted) borderStyle = {...borderStyle, borderWidth: 3.5, borderColor: '#ffffff'}
+    if (item.selected) borderStyle = {...borderStyle, borderWidth: 3.5, borderColor: '#ffffff'}
 
     switch (item.status) {
       case STATUS_IN_PROGRESS:
@@ -129,9 +141,9 @@ export default class App extends React.Component {
             styles.item,
             borderStyle,
             {
-              elevation: item.highlighted ? 4 : 0,
-              marginTop: item.highlighted ? 8 : 0,
-              marginBottom: item.highlighted ? 8 : 0,
+              elevation: item.selected ? 4 : 0,
+              marginTop: item.selected ? 8 : 0,
+              marginBottom: item.selected ? 8 : 0,
               backgroundColor: `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS - (index * (MAX_COLOR_LIGHTNESS - MIN_COLOR_LIGHTNESS) / tasks.length)}%)`,
             }
           ]}>
@@ -153,7 +165,7 @@ export default class App extends React.Component {
       tasks.unshift({
         title: tmpTaskText,
         status: STATUS_IN_PROGRESS,
-        highlighted: false
+        selected: false
       })
 
       await setTasks(tasks.map(item => item))
@@ -168,9 +180,9 @@ export default class App extends React.Component {
   onPressItem = async (item, index) => {
     let {tasks} = this.state
 
-    if (tasks.some((item) => item.highlighted)) {
-      if (item.highlighted) tasks[index] = {...item, highlighted: false}
-      else tasks[index] = {...item, highlighted: true}
+    if (tasks.some((item) => item.selected)) {
+      if (item.selected) tasks[index] = {...item, selected: false}
+      else tasks[index] = {...item, selected: true}
     } else {
       switch (item.status) {
         case STATUS_IN_PROGRESS:
@@ -191,10 +203,10 @@ export default class App extends React.Component {
   onLongPressItem = async (item, index) => {
     let {tasks} = this.state
 
-    if (item.highlighted) {
-      tasks[index] = {...item, highlighted: false}
+    if (item.selected) {
+      tasks[index] = {...item, selected: false}
     } else {
-      tasks[index] = {...item, highlighted: true}
+      tasks[index] = {...item, selected: true}
     }
 
     await setTasks(tasks.map(item => item))
@@ -207,14 +219,49 @@ export default class App extends React.Component {
     this.setState({isTaskCreating: true})
   }
 
-  onActionSelected = async () => {
+  onPressToolbarIcon = async () => {
     let {tasks} = this.state
 
-    let notHighlightedTasks = tasks.filter((item, index, arr) => !item.highlighted)
+    tasks.forEach((item, index, arr) => {
+      if (item.selected) arr[index] = {...item, selected: false}
+    })
 
-    await setTasks(notHighlightedTasks)
+    await setTasks(tasks.map(item => item))
 
-    this.setState({tasks: notHighlightedTasks})
+    this.setState({tasks: tasks.map(item => item)})
+    LayoutAnimation.spring()
+  }
+
+  onScrollList = (event) => {
+    if (event.nativeEvent.contentOffset.y === 0) {
+      this.setState({scrollPosition: POSITION_BEFORE_TOOLBAR})
+    } else {
+      this.setState({scrollPosition: POSITION_UNDER_TOOLBAR})
+    }
+  }
+
+  onActionSelected = async (action) => {
+    let {tasks} = this.state
+
+    switch (action) {
+      case ACTION_SELECT_ALL:
+        tasks.forEach((item, index, arr) => {
+          if (!item.selected) arr[index] = {...item, selected: true}
+        })
+
+        await setTasks(tasks.map(item => item))
+
+        this.setState({tasks: tasks.map(item => item)})
+        break
+      case ACTION_DELETE:
+        let notSelectedTasks = tasks.filter(item => !item.selected)
+
+        await setTasks(notSelectedTasks)
+
+        this.setState({tasks: notSelectedTasks})
+        break
+    }
+
     LayoutAnimation.spring()
   }
 
@@ -229,23 +276,44 @@ export default class App extends React.Component {
   }
 
   render () {
-    let {tasks} = this.state
+    let {tasks, scrollPosition} = this.state
+    let toolbar
+    let selectedTasks = 0
+
+    tasks.forEach(item => {
+      if (item.selected) selectedTasks++
+    })
+
+    if (tasks.some(item => item.selected)) {
+      toolbar = <Icon.ToolbarAndroid
+        style={styles.toolbarSelectionMode}
+        title={`${selectedTasks}`}
+        navIconName={'clear'}
+        onIconClicked={this.onPressToolbarIcon}
+        actions={[
+          {title: 'Select all', iconName: 'select-all', show: 'always'},
+          {title: 'Delete', iconName: 'delete', show: 'always'}
+        ]}
+        onActionSelected={this.onActionSelected}
+        titleColor={'#ffffff'}/>
+    } else {
+      toolbar = <Icon.ToolbarAndroid
+        style={[styles.toolbarDefault, {elevation: scrollPosition === POSITION_UNDER_TOOLBAR ? 4 : 0}]}
+        title="Quick Tasks"
+        titleColor={'#ffffff'}/>
+    }
 
     return (
       <View style={styles.container}>
         <StatusBar
           backgroundColor={'#000'}
           barStyle="light-content"/>
-        <Icon.ToolbarAndroid
-          style={styles.toolbar}
-          title="ToDo"
-          actions={[{title: 'Delete', iconName: 'delete', show: 'always'}]}
-          onActionSelected={this.onActionSelected}
-          titleColor={'#ffffff'}/>
+        {toolbar}
         <FlatList
           keyExtractor={(item, index) => index}
           data={tasks}
           renderItem={this.renderItem}
+          onScroll={this.onScrollList}
           ListEmptyComponent={this.renderEmptyView}
           ListHeaderComponent={this.renderHeader}
           ListFooterComponent={() => <View style={styles.footer}/>}/>

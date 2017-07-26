@@ -5,7 +5,11 @@ export default StyleSheet.create({
     flex: 1,
     backgroundColor: '#303030'
   },
-  toolbar: {
+  toolbarDefault: {
+    height: 56,
+    backgroundColor: '#303030'
+  },
+  toolbarSelectionMode: {
     elevation: 4,
     height: 56,
     backgroundColor: '#212121'
