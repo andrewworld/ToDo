@@ -14,25 +14,16 @@ export default StyleSheet.create({
     height: 56,
     backgroundColor: '#212121'
   },
-  footer: {
-    height: 8
+  flatListContent: {
+    padding: 8
   },
   header: {
-    marginLeft: 8,
-    marginRight: 8,
-    padding: 18,
-    marginTop: 8,
+    padding: 16,
     justifyContent: 'center',
   },
-  headerPlusText: {
-    borderWidth: 2,
-    width: 24,
-    fontSize: 18,
-    height: 24,
-    textAlign: 'center',
-    includeFontPadding: false,
-    textAlignVertical: 'center',
-    borderRadius: 24 / 2
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center'
   },
   headerText: {
     marginLeft: 12,
@@ -40,14 +31,17 @@ export default StyleSheet.create({
     fontSize: 18,
   },
   headerTextInput: {
+    flex: 1,
     fontSize: 18,
     margin: 0,
     padding: 0
   },
+  headerIcon: {
+    padding: 4
+  },
   item: {
-    marginLeft: 8,
-    marginRight: 8,
     padding: 20,
+    margin: 8,
     flexDirection: 'row',
     alignItems: 'center'
   },
@@ -61,8 +55,8 @@ export default StyleSheet.create({
     marginRight: 20
   },
   emptyViewContainer: {
-    flex: 1,
-    marginTop: 144,
+    paddingTop: 144,
+    paddingBottom: 144,
     justifyContent: 'center',
     alignItems: 'center'
   },

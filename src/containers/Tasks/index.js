@@ -57,40 +57,53 @@ export default class App extends React.PureComponent {
     let {tasks, isTaskCreating, tmpTaskText} = this.state
     let borderStyle, view
 
-    if (tasks.length === 0) borderStyle = {borderRadius: 2, borderWidth: 3.5}
+    if (tasks.length === 0 || (tasks.length > 0 && isTaskCreating)) borderStyle = {borderRadius: 2, borderWidth: 3.5}
     else borderStyle = {borderTopLeftRadius: 2, borderTopRightRadius: 2, borderWidth: 3.5}
 
     if (isTaskCreating) {
       view = (
-        <TextInput
-          value={tmpTaskText}
-          autoFocus={true}
-          style={[styles.headerTextInput, {color: `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS}%)`}]}
-          selectionColor={'#909090'}
-          placeholderTextColor={'#909090'}
-          placeholder={'Enter your task here...'}
-          autoCapitalize={'sentences'}
-          underlineColorAndroid={'#00000000'}
-          onChangeText={(text) => this.setState({tmpTaskText: text})}
-          onEndEditing={this.onEndEditing}
-        />)
+        <View style={styles.headerContainer}>
+          <TextInput
+            value={tmpTaskText}
+            autoFocus={true}
+            style={[styles.headerTextInput, {color: `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS}%)`}]}
+            selectionColor={'#909090'}
+            placeholderTextColor={'#909090'}
+            placeholder={'Enter your task here...'}
+            autoCapitalize={'sentences'}
+            underlineColorAndroid={'#00000000'}
+            onChangeText={(text) => this.setState({tmpTaskText: text})}
+            onEndEditing={this.onEndEditing}/>
+          <TouchableNativeFeedback
+            delayPressIn={0}
+            background={TouchableNativeFeedback.Ripple('#909090', true)}
+            onPress={() => this.setState({tmpTaskText: ''})}>
+            <View>
+              <Icon
+                style={[styles.headerIcon, {color: `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS}%)`}]}
+                name={'clear'}
+                size={24}/>
+            </View>
+          </TouchableNativeFeedback>
+        </View>)
     } else {
       view = (
-        <View style={{flexDirection: 'row'}}>
-          <Text
-            style={[styles.headerPlusText, {
-              borderColor: tasks.length === 0 ? '#303030' : `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS}%)`,
-              color: tasks.length === 0 ? '#303030' : `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS}%)`
-            }]}>{'+'}</Text>
+        <View style={styles.headerContainer}>
+          <Icon
+            style={[styles.headerIcon, {color: tasks.length === 0 ? '#303030' : `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS}%)`}]}
+            name={'add'}
+            size={24}/>
           <Text
             style={[styles.headerText, {
               color: tasks.length === 0 ? '#303030' : `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS}%)`
-            }]}>{'Create new task'}</Text>
+            }]}>{'Add a task'}</Text>
         </View>)
     }
 
     return (
       <TouchableNativeFeedback
+        delayPressIn={0}
+        disabled={isTaskCreating}
         background={TouchableNativeFeedback.Ripple('#909090', false)}
         onPress={this.onPressHeader}>
         <View
@@ -98,11 +111,13 @@ export default class App extends React.PureComponent {
             styles.header,
             borderStyle,
             {
-              elevation: (tasks.length === 0 && !isTaskCreating) ? 4 : 0,
+              marginRight: isTaskCreating ? 0 : 8,
+              marginLeft: isTaskCreating ? 0 : 8,
+              marginBottom: tasks.length > 0 && isTaskCreating ? 8 : 0,
+              borderColor: `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS}%)`,
               backgroundColor: (tasks.length === 0 && !isTaskCreating)
                 ? `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS}%)`
-                : '#303030',
-              borderColor: `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS}%)`
+                : 'transparent'
             }
           ]}>
           {view}
@@ -133,6 +148,7 @@ export default class App extends React.PureComponent {
 
     return (
       <TouchableNativeFeedback
+        delayPressIn={0}
         background={TouchableNativeFeedback.Ripple('#e5e5e5', false)}
         onPress={() => this.onPressItem(item, index)}
         onLongPress={() => this.onLongPressItem(item, index)}>
@@ -160,72 +176,78 @@ export default class App extends React.PureComponent {
 
   onEndEditing = async () => {
     let {tasks, tmpTaskText} = this.state
+    let newTasks = tasks.map(item => item)
 
     if (tmpTaskText && tmpTaskText.trim() !== '') {
-      tasks.unshift({
+      newTasks.unshift({
         title: tmpTaskText,
         status: STATUS_IN_PROGRESS,
         selected: false
       })
 
-      await setTasks(tasks.map(item => item))
+      await setTasks(newTasks)
 
-      this.setState({isTaskCreating: false, tasks: tasks.map(item => item), tmpTaskText: ''})
+      this.setState({isTaskCreating: false, tasks: newTasks, tmpTaskText: ''})
       LayoutAnimation.spring()
     } else {
       this.setState({isTaskCreating: false, tmpTaskText: ''})
+      LayoutAnimation.spring()
     }
   }
 
   onPressItem = async (item, index) => {
     let {tasks} = this.state
+    let newTasks = tasks.map(item => item)
 
-    if (tasks.some((item) => item.selected)) {
-      if (item.selected) tasks[index] = {...item, selected: false}
-      else tasks[index] = {...item, selected: true}
+    if (newTasks.some((item) => item.selected)) {
+      if (item.selected) newTasks[index] = {...item, selected: false}
+      else newTasks[index] = {...item, selected: true}
     } else {
       switch (item.status) {
         case STATUS_IN_PROGRESS:
-          tasks[index] = {...item, status: STATUS_DONE}
+          newTasks[index] = {...item, status: STATUS_DONE}
           break
         case STATUS_DONE:
-          tasks[index] = {...item, status: STATUS_IN_PROGRESS}
+          newTasks[index] = {...item, status: STATUS_IN_PROGRESS}
           break
       }
     }
 
-    await setTasks(tasks.map(item => item))
+    await setTasks(newTasks)
 
-    this.setState({tasks: tasks.map(item => item)})
+    this.setState({tasks: newTasks})
     LayoutAnimation.spring()
   }
 
   onLongPressItem = async (item, index) => {
     let {tasks} = this.state
+    let newTasks = tasks.map(item => item)
 
-    if (item.selected) tasks[index] = {...item, selected: false}
-    else tasks[index] = {...item, selected: true}
+    if (item.selected) newTasks[index] = {...item, selected: false}
+    else newTasks[index] = {...item, selected: true}
 
-    await setTasks(tasks.map(item => item))
+    await setTasks(newTasks)
 
-    this.setState({tasks: tasks.map(item => item)})
+    this.setState({tasks: newTasks})
     LayoutAnimation.spring()
   }
 
   onPressHeader = () => {
     this.setState({isTaskCreating: true})
+    LayoutAnimation.spring()
   }
 
   onPressToolbarIcon = async () => {
     let {tasks} = this.state
+    let newTasks = tasks.map(item => item)
 
-    tasks.forEach((item, index, arr) => {
+    newTasks.forEach((item, index, arr) => {
       if (item.selected) arr[index] = {...item, selected: false}
     })
 
-    await setTasks(tasks.map(item => item))
+    await setTasks(newTasks)
 
-    this.setState({tasks: tasks.map(item => item)})
+    this.setState({tasks: newTasks})
     LayoutAnimation.spring()
   }
 
@@ -239,16 +261,18 @@ export default class App extends React.PureComponent {
 
   onActionSelected = async (action) => {
     let {tasks} = this.state
+    let newTasks = tasks.map(item => item)
 
     switch (action) {
       case ACTION_SELECT_ALL:
-        tasks.forEach((item, index, arr) => {
+        newTasks.forEach((item, index, arr) => {
           if (!item.selected) arr[index] = {...item, selected: true}
         })
 
-        await setTasks(tasks.map(item => item))
+        await setTasks(newTasks)
 
-        this.setState({tasks: tasks.map(item => item)})
+        this.setState({tasks: newTasks})
+        LayoutAnimation.spring()
         break
       case ACTION_DELETE:
         let notSelectedTasks = tasks.filter(item => !item.selected)
@@ -256,6 +280,7 @@ export default class App extends React.PureComponent {
         await setTasks(notSelectedTasks)
 
         this.setState({tasks: notSelectedTasks})
+        LayoutAnimation.spring()
         break
     }
 
@@ -309,11 +334,13 @@ export default class App extends React.PureComponent {
         <FlatList
           keyExtractor={(item, index) => index}
           data={tasks}
+          keyboardShouldPersistTaps={'handled'}
+          contentContainerStyle={styles.flatListContent}
+          extraData={this.state}
           renderItem={this.renderItem}
           onScroll={this.onScrollList}
           ListEmptyComponent={this.renderEmptyView}
-          ListHeaderComponent={this.renderHeader}
-          ListFooterComponent={() => <View style={styles.footer}/>}/>
+          ListHeaderComponent={this.renderHeader}/>
       </View>
     )
   }
