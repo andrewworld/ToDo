@@ -33,14 +33,17 @@ const animationConfig = {
 
 export default class Tasks extends React.PureComponent {
 
+  state = {width: 0, height: 0}
+
   renderEmptyView = () => {
     return (
-      <View style={styles.emptyViewContainer}>
+      <View style={[styles.emptyViewContainer, {
+        width: this.state.width,
+        height: this.state.height,
+      }]}>
         <Text
-          style={
-            [styles.emptyViewText,
-              {color: `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS}%)`}
-            ]}>{`THE\nBEST\nTO-DO APP\nEVER`}</Text>
+          style={[styles.emptyViewText, {color: `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS}%)`}]}>
+          {`THE\nBEST\nTO-DO APP\nEVER`}</Text>
       </View>
     )
   }
@@ -48,15 +51,20 @@ export default class Tasks extends React.PureComponent {
   renderItem = ({item, index}) => {
     let textDecorationLine, iconDisplay, borderStyle
 
-    if (this.props.items.length === 1) borderStyle = {borderRadius: 2}
-    else if (index === this.props.items.length - 1) borderStyle = {
-      borderBottomLeftRadius: 2,
-      borderBottomRightRadius: 2
+    if (this.props.items.length === 1) {
+      borderStyle = styles.itemAloneBorder
+    } else {
+      switch (index) {
+        case 0:
+          borderStyle = styles.itemFirstBorder
+          break
+        case this.props.items.length - 1:
+          borderStyle = styles.itemLastBorder
+          break
+      }
     }
-    else if (index === 0) borderStyle = {borderTopLeftRadius: 2, borderTopRightRadius: 2}
-    else borderStyle = {}
 
-    if (item.selected) borderStyle = {...borderStyle, borderWidth: 3.5, borderColor: '#ffffff'}
+    if (item.selected) borderStyle = styles.itemSelectedBorder
 
     switch (item.status) {
       case TASK_STATUS_IN_PROGRESS:
@@ -83,7 +91,8 @@ export default class Tasks extends React.PureComponent {
               elevation: item.selected ? 4 : 0,
               marginTop: item.selected ? 8 : 0,
               marginBottom: item.selected ? 8 : 0,
-              backgroundColor: `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS - (index * (MAX_COLOR_LIGHTNESS - MIN_COLOR_LIGHTNESS) / this.props.items.length)}%)`,
+              backgroundColor: `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS -
+              (index * (MAX_COLOR_LIGHTNESS - MIN_COLOR_LIGHTNESS) / this.props.items.length)}%)`,
             }
           ]}>
           <Icon
@@ -108,6 +117,12 @@ export default class Tasks extends React.PureComponent {
     }
   }
 
+  onLayout = (event) => {
+    let {width, height} = event.nativeEvent.layout
+
+    this.setState({width, height})
+  }
+
   componentWillUpdate () {
     LayoutAnimation.configureNext(animationConfig)
   }
@@ -124,18 +139,18 @@ export default class Tasks extends React.PureComponent {
       toolbar = <Icon.ToolbarAndroid
         style={styles.toolbar}
         title={`${selectedTasks}`}
+        titleColor={'#ffffff'}
         navIconName={'clear'}
         onIconClicked={this.props.onPressToolbarIcon}
+        onActionSelected={this.onActionSelected}
         actions={[
           {title: 'Select all', iconName: 'select-all', show: 'always'},
           {title: 'Delete', iconName: 'delete', show: 'always'}
-        ]}
-        onActionSelected={this.onActionSelected}
-        titleColor={'#ffffff'}/>
+        ]}/>
     } else {
       toolbar = <Icon.ToolbarAndroid
         style={styles.toolbar}
-        title="Quick Tasks"
+        title={'Quick Tasks'}
         titleColor={'#ffffff'}/>
     }
 
@@ -147,9 +162,11 @@ export default class Tasks extends React.PureComponent {
         {toolbar}
         <FlatList
           keyExtractor={(item, index) => index}
+          style={styles.flatList}
+          contentContainerStyle={this.props.items.length ? styles.flatListContent : {padding: 0}}
           data={this.props.items}
           keyboardShouldPersistTaps={'handled'}
-          contentContainerStyle={styles.flatListContent}
+          onLayout={this.onLayout}
           renderItem={this.renderItem}
           ListEmptyComponent={this.renderEmptyView}/>
         <ActionButton

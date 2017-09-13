@@ -48,7 +48,7 @@ export default class NewTask extends React.PureComponent {
           multiline
           value={this.state.text}
           onChangeText={(text) => this.setState({text})}
-          placeholder={'What do you want to do?'}
+          placeholder={'What would you like to do?'}
           autoCapitalize={'sentences'}
           underlineColorAndroid={'#00000000'}/>
       </View>

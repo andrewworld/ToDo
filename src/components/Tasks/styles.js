@@ -10,12 +10,14 @@ export default StyleSheet.create({
     height: 56,
     backgroundColor: '#212121'
   },
+  flatList: {
+    flex: 1
+  },
   flatListContent: {
-    padding: 8
+    padding: 16
   },
   item: {
     padding: 20,
-    margin: 8,
     flexDirection: 'row',
     alignItems: 'center'
   },
@@ -28,9 +30,23 @@ export default StyleSheet.create({
     color: '#ffffff',
     marginRight: 20
   },
+  itemAloneBorder: {
+    borderRadius: 2
+  },
+  itemFirstBorder: {
+    borderTopLeftRadius: 2,
+    borderTopRightRadius: 2
+  },
+  itemLastBorder: {
+    borderBottomLeftRadius: 2,
+    borderBottomRightRadius: 2
+  },
+  itemSelectedBorder: {
+    borderWidth: 3.5,
+    borderColor: '#ffffff'
+  },
   emptyViewContainer: {
-    paddingTop: 144,
-    paddingBottom: 144,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center'
   },
