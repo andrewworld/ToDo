@@ -1,52 +1,54 @@
+import Constants from '../../utils/Constants'
+
 export function createTask (title) {
   return {
-    type: 'CREATE_TASK',
+    type: Constants.actions.CREATE_TASK,
     payload: title
   }
 }
 
-export function deleteTask (index) {
+export function deleteTask (id) {
   return {
-    type: 'DELETE_TASK',
-    payload: index
+    type: Constants.actions.DELETE_TASK,
+    payload: id
   }
 }
 
-export function updateTask (index, task) {
+export function updateTask (id, task) {
   return {
-    type: 'UPDATE_TASK',
-    payload: {index, task}
+    type: Constants.actions.UPDATE_TASK,
+    payload: {id, task}
   }
 }
 
-export function toggleTaskSelection (index) {
+export function toggleTaskSelection (id) {
   return {
-    type: 'TOGGLE_TASK_SELECTION',
-    payload: index
+    type: Constants.actions.TOGGLE_TASK_SELECTION,
+    payload: id
   }
 }
 
-export function toggleTaskStatus (index) {
+export function toggleTaskStatus (id) {
   return {
-    type: 'TOGGLE_TASK_STATUS',
-    payload: index
+    type: Constants.actions.TOGGLE_TASK_STATUS,
+    payload: id
   }
 }
 
 export function selectTasks () {
   return {
-    type: 'SELECT_TASKS'
+    type: Constants.actions.SELECT_TASKS
   }
 }
 
 export function deselectTasks () {
   return {
-    type: 'DESELECT_TASKS'
+    type: Constants.actions.DESELECT_TASKS
   }
 }
 
 export function deleteSelectedTasks () {
   return {
-    type: 'DELETE_SELECTED_TASKS'
+    type: Constants.actions.DELETE_SELECTED_TASKS
   }
 }

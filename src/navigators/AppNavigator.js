@@ -36,11 +36,11 @@ export const Navigator = StackNavigator(
           ...stateProps,
           ...dispatchProps,
           ...ownProps,
-          onPressItem: (item, index) => {
-            if (stateProps.items.some(item => item.selected)) dispatchProps.toggleTaskSelection(index)
-            else dispatchProps.toggleTaskStatus(index)
+          onPressItem: (item) => {
+            if (stateProps.items.some(item => item.selected)) dispatchProps.toggleTaskSelection(item.id)
+            else dispatchProps.toggleTaskStatus(item.id)
           },
-          onLongPressItem: (item, index) => dispatchProps.toggleTaskSelection(index)
+          onLongPressItem: (item) => dispatchProps.toggleTaskSelection(item.id)
         })
       )(Tasks)
     },
