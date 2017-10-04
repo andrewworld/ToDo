@@ -50,10 +50,8 @@ export const Navigator = StackNavigator(
         (dispatch) => ({
           onPressNavIcon: bindActionCreators(goBack, dispatch),
           onPressActionSend: (text) => {
-            if (text.trim()) {
-              dispatch(createTask(text))
-              dispatch(goBack())
-            }
+            dispatch(createTask(text))
+            dispatch(goBack())
           }
         })
       )(NewTask)

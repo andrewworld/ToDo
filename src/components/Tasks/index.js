@@ -1,8 +1,8 @@
 import React from 'react'
 import { FlatList, LayoutAnimation, NativeModules, StatusBar, Text, TouchableNativeFeedback, View } from 'react-native'
-import styles from './styles'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import ActionButton from 'react-native-action-button'
+import styles from './styles'
 
 const {UIManager} = NativeModules
 
@@ -49,7 +49,7 @@ export default class Tasks extends React.PureComponent {
   }
 
   renderItem = ({item, index}) => {
-    let textDecorationLine, iconDisplay, borderStyle
+    let borderStyle
 
     if (this.props.items.length === 1) {
       borderStyle = styles.itemAloneBorder
@@ -65,17 +65,6 @@ export default class Tasks extends React.PureComponent {
     }
 
     if (item.selected) borderStyle = styles.itemSelectedBorder
-
-    switch (item.status) {
-      case TASK_STATUS_IN_PROGRESS:
-        iconDisplay = 'none'
-        textDecorationLine = 'none'
-        break
-      case TASK_STATUS_DONE:
-        iconDisplay = 'flex'
-        textDecorationLine = 'line-through'
-        break
-    }
 
     return (
       <TouchableNativeFeedback
@@ -95,12 +84,16 @@ export default class Tasks extends React.PureComponent {
               (index * (MAX_COLOR_LIGHTNESS - MIN_COLOR_LIGHTNESS) / this.props.items.length)}%)`,
             }
           ]}>
-          <Icon
-            style={[styles.itemIcon, {display: iconDisplay}]}
-            name={'done'}
+          {item.status === TASK_STATUS_DONE ? <Icon
+            style={styles.itemIcon}
+            name={'check-circle'}
             size={24}
-          />
-          <Text style={[styles.itemTitle, {textDecorationLine}]}>{item.title}</Text>
+          /> : null}
+          <Text
+            style={[
+              styles.itemTitle,
+              {textDecorationLine: item.status === TASK_STATUS_DONE ? 'line-through' : 'none'}
+            ]}>{item.title}</Text>
         </View>
       </TouchableNativeFeedback>
     )
