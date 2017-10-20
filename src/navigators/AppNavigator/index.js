@@ -4,7 +4,6 @@ import Tasks from '../../containers/Tasks/index'
 import NewTask from '../../containers/NewTask/index'
 import StatusBarPage from '../../components/StatusBarPage/index'
 import HeaderIcon from '../../components/HeaderIcon/index'
-import { deleteSelectedTasks, deselectTasks } from '../../redux/actions/dataActions'
 import { goBack, openNewTask } from '../../redux/actions/navigationActions'
 import Constants from '../../utils/Constants'
 import { Text, View } from 'react-native'
@@ -20,7 +19,7 @@ export default StackNavigator(
         <Tasks
           onPressActionButton={() => props.navigation.dispatch(openNewTask())}
           selectedCount={props.navigation.state.params && props.navigation.state.params.selectedCount || 0}
-          setSelectedCount={(count) => props.navigation.setParams({selectedCount: count})}/>
+          setSelectedCount={(selectedCount) => props.navigation.setParams({selectedCount})}/>
       ),
       navigationOptions: ({navigation}) => ({
         title: (!navigation.state.params || navigation.state.params.selectedCount === 0) && 'Quick Tasks',
@@ -65,10 +64,7 @@ function TasksHeaderLeft ({navigation}) {
     <View style={styles.rowContainer}>
       <HeaderIcon
         icon={'close'}
-        onPress={() => {
-          navigation.setParams({selectedCount: 0})
-          navigation.dispatch(deselectTasks())
-        }}
+        onPress={() => navigation.setParams({selectedCount: 0})}
         iconStyle={styles.icon}/>
       <Text style={styles.counter}>
         {navigation.state.params && navigation.state.params.selectedCount}
@@ -81,10 +77,7 @@ function TasksHeaderRight ({navigation}) {
   return (
     <HeaderIcon
       icon={'delete'}
-      onPress={() => {
-        navigation.setParams({selectedCount: 0})
-        navigation.dispatch(deleteSelectedTasks())
-      }}
+      onPress={() => navigation.setParams({selectedCount: 0})}
       iconStyle={styles.icon}/>
   )
 }
