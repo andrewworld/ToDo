@@ -1,21 +1,7 @@
 import React from 'react'
-import { FlatList, LayoutAnimation, NativeModules, TouchableNativeFeedback, View } from 'react-native'
+import { TouchableNativeFeedback } from 'react-native'
 import Constants from '../../utils/Constants'
-import styles from './styles'
-
-NativeModules.UIManager.setLayoutAnimationEnabledExperimental &&
-NativeModules.UIManager.setLayoutAnimationEnabledExperimental(true)
-
-const animationConfig = {
-  duration: 100,
-  create: {
-    type: LayoutAnimation.Types.easeInEaseOut,
-    property: LayoutAnimation.Properties.opacity,
-  },
-  update: {
-    type: LayoutAnimation.Types.easeInEaseOut,
-  },
-}
+import List from '../List/index'
 
 export default class SelectableList extends React.PureComponent {
 
@@ -25,11 +11,7 @@ export default class SelectableList extends React.PureComponent {
     onLongPressItem: () => {},
   }
 
-  state = {
-    width: 0,
-    height: 0,
-    selectedItemsKeys: []
-  }
+  state = {selectedItemsKeys: []}
 
   constructor (props) {
     super(props)
@@ -37,11 +19,9 @@ export default class SelectableList extends React.PureComponent {
     this.deselectAll = this.deselectAll.bind(this)
     this._toggleSelection = this._toggleSelection.bind(this)
     this._checkIsSelected = this._checkIsSelected.bind(this)
-    this._renderEmptyView = this._renderEmptyView.bind(this)
     this._renderItem = this._renderItem.bind(this)
     this._onPressItem = this._onPressItem.bind(this)
     this._onLongPressItem = this._onLongPressItem.bind(this)
-    this._onLayout = this._onLayout.bind(this)
   }
 
   get selectedItemsKeys () {
@@ -50,14 +30,6 @@ export default class SelectableList extends React.PureComponent {
 
   deselectAll () {
     this.setState({selectedItemsKeys: []})
-  }
-
-  _renderEmptyView () {
-    return (
-      <View style={[styles.emptyView, {width: this.state.width, height: this.state.height}]}>
-        {this.props.ListEmptyComponent()}
-      </View>
-    )
   }
 
   _checkIsSelected (key) {
@@ -99,28 +71,13 @@ export default class SelectableList extends React.PureComponent {
     this.props.onLongPressItem(item, index, selected)
   }
 
-  _onLayout (event) {
-    const {width, height} = event.nativeEvent.layout
-
-    this.setState({width, height})
-  }
-
-  componentWillUpdate () {
-    LayoutAnimation.configureNext(animationConfig)
-  }
-
   render () {
     return (
-      <FlatList
-        keyExtractor={(item, index) => index}
+      <List
         data={this.props.items}
         extraData={this.state}
-        keyboardShouldPersistTaps={'handled'}
-        onLayout={this._onLayout}
         renderItem={this._renderItem}
-        ListEmptyComponent={this._renderEmptyView}
-        contentContainerStyle={this.props.items.length ? styles.flatListContent : {padding: 0}}
-        style={styles.flatList}/>
+        ListEmptyComponent={this.props.ListEmptyComponent}/>
     )
   }
 }

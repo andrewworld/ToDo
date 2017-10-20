@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import Icon from 'react-native-vector-icons/MaterialIcons'
-import TouchableView from '../TouchableView'
+import TouchableView from '../TouchableItem/index'
 import styles from './styles'
 
 export default class HeaderIcon extends Component {

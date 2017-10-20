@@ -106,7 +106,6 @@ export default class Tasks extends React.PureComponent {
     return (
       <View style={styles.container}>
         <SelectableList
-          ref={ref => {this.list = ref}}
           items={this.props.items}
           renderItem={this._renderItem}
           ListEmptyComponent={Tasks._renderEmptyView}
