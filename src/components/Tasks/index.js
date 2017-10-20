@@ -6,16 +6,16 @@ import styles from './styles'
 
 const {UIManager} = NativeModules
 
-export const TASK_STATUS_IN_PROGRESS = 0
-export const TASK_STATUS_DONE = 1
-
 const ACTION_SELECT_ALL = 0
 const ACTION_DELETE = 1
 
-const MAX_COLOR_LIGHTNESS = 75
-const MIN_COLOR_LIGHTNESS = 25
-const COLOR_HUE = 25
-const COLOR_SATURATION = 80
+export const TASK_STATUS_IN_PROGRESS = 0
+export const TASK_STATUS_DONE = 1
+
+export const MAX_COLOR_LIGHTNESS = 75
+export const MIN_COLOR_LIGHTNESS = 25
+export const COLOR_HUE = 25
+export const COLOR_SATURATION = 80
 
 UIManager.setLayoutAnimationEnabledExperimental &&
 UIManager.setLayoutAnimationEnabledExperimental(true)
@@ -35,7 +35,16 @@ export default class Tasks extends React.PureComponent {
 
   state = {width: 0, height: 0}
 
-  renderEmptyView = () => {
+  constructor (props, context) {
+    super(props, context)
+
+    this._renderEmptyView = this._renderEmptyView.bind(this)
+    this._renderItem = this._renderItem.bind(this)
+    this._onLayout = this._onLayout.bind(this)
+    this._onActionSelected = this._onActionSelected.bind(this)
+  }
+
+  _renderEmptyView () {
     return (
       <View style={[styles.emptyViewContainer, {
         width: this.state.width,
@@ -48,7 +57,7 @@ export default class Tasks extends React.PureComponent {
     )
   }
 
-  renderItem = ({item, index}) => {
+  _renderItem ({item, index}) {
     let borderStyle
 
     if (this.props.items.length === 1) {
@@ -99,7 +108,7 @@ export default class Tasks extends React.PureComponent {
     )
   }
 
-  onActionSelected = (action) => {
+  _onActionSelected (action) {
     switch (action) {
       case ACTION_SELECT_ALL:
         this.props.onPressActionSelectAll()
@@ -110,8 +119,8 @@ export default class Tasks extends React.PureComponent {
     }
   }
 
-  onLayout = (event) => {
-    let {width, height} = event.nativeEvent.layout
+  _onLayout (event) {
+    const {width, height} = event.nativeEvent.layout
 
     this.setState({width, height})
   }
@@ -135,7 +144,7 @@ export default class Tasks extends React.PureComponent {
         titleColor={'#ffffff'}
         navIconName={'clear'}
         onIconClicked={this.props.onPressToolbarIcon}
-        onActionSelected={this.onActionSelected}
+        onActionSelected={this._onActionSelected}
         actions={[
           {title: 'Select all', iconName: 'select-all', show: 'always'},
           {title: 'Delete', iconName: 'delete', show: 'always'}
@@ -159,9 +168,9 @@ export default class Tasks extends React.PureComponent {
           contentContainerStyle={this.props.items.length ? styles.flatListContent : {padding: 0}}
           data={this.props.items}
           keyboardShouldPersistTaps={'handled'}
-          onLayout={this.onLayout}
-          renderItem={this.renderItem}
-          ListEmptyComponent={this.renderEmptyView}/>
+          onLayout={this._onLayout}
+          renderItem={this._renderItem}
+          ListEmptyComponent={this._renderEmptyView}/>
         <ActionButton
           fixNativeFeedbackRadius
           onPress={this.props.onPressActionButton}
