@@ -1,27 +1,23 @@
 import React from 'react'
-import { LayoutAnimation, NativeModules, StatusBar, Text, TextInput, TouchableNativeFeedback, View } from 'react-native'
+import { Text, TextInput, TouchableNativeFeedback, View } from 'react-native'
 import styles from './styles'
-import Icon from 'react-native-vector-icons/MaterialIcons'
 import { COLOR_HUE, COLOR_SATURATION, MAX_COLOR_LIGHTNESS } from '../Tasks/index'
-
-const {UIManager} = NativeModules
-
-UIManager.setLayoutAnimationEnabledExperimental &&
-UIManager.setLayoutAnimationEnabledExperimental(true)
-
-const animationConfig = {
-  duration: 100,
-  create: {
-    type: LayoutAnimation.Types.easeInEaseOut,
-    property: LayoutAnimation.Properties.opacity
-  },
-  update: {
-    type: LayoutAnimation.Types.easeInEaseOut
-  },
-}
+import { connect } from 'react-redux'
+import { createTask } from '../../redux/actions/dataActions'
+import { goBack } from '../../redux/actions/navigationActions'
+import Constants from '../../utils/Constants'
 
 const TEXT_INPUT_MAX_LENGTH = 150
 
+@connect(
+  null,
+  (dispatch) => ({
+    onPressActionSend: (text) => {
+      dispatch(createTask(text))
+      dispatch(goBack())
+    }
+  })
+)
 export default class NewTask extends React.PureComponent {
 
   state = {text: ''}
@@ -31,10 +27,6 @@ export default class NewTask extends React.PureComponent {
 
     this._onChangeText = this._onChangeText.bind(this)
     this._onPressSend = this._onPressSend.bind(this)
-  }
-
-  componentWillUpdate () {
-    LayoutAnimation.configureNext(animationConfig)
   }
 
   _onChangeText (text) {
@@ -48,25 +40,17 @@ export default class NewTask extends React.PureComponent {
   render () {
     return (
       <View style={styles.container}>
-        <StatusBar
-          backgroundColor={'#000'}
-          barStyle="light-content"/>
-        <Icon.ToolbarAndroid
-          navIconName={'close'}
-          onIconClicked={this.props.onPressNavIcon}
-          titleColor={'#ffffff'}
-          style={styles.toolbar}/>
         <TextInput
           autoFocus={true}
-          selectionColor={'#909090'}
-          placeholderTextColor={'#909090'}
+          selectionColor={Constants.color.SELECTION}
+          placeholderTextColor={Constants.color.SELECTION}
           multiline
           maxLength={TEXT_INPUT_MAX_LENGTH}
           value={this.state.text}
           onChangeText={this._onChangeText}
           placeholder={'What would you like to do?'}
           autoCapitalize={'sentences'}
-          underlineColorAndroid={'#00000000'}
+          underlineColorAndroid={Constants.color.TRANSPARENT}
           style={styles.textInput}/>
         <View style={styles.keyboardToolbar}>
           <Text style={styles.textLength}>
@@ -75,7 +59,7 @@ export default class NewTask extends React.PureComponent {
           <TouchableNativeFeedback
             delayPressIn={0}
             disabled={!this.state.text.trim()}
-            background={TouchableNativeFeedback.Ripple('#e5e5e5', false)}
+            background={TouchableNativeFeedback.Ripple(Constants.color.RIPPLE, false)}
             onPress={this._onPressSend}>
             <View style={[styles.sendButtonContainer, {
               backgroundColor: this.state.text.trim()

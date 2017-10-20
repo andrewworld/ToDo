@@ -1,14 +1,15 @@
 import { StyleSheet } from 'react-native'
+import Constants from '../../utils/Constants'
 
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#303030'
+    backgroundColor: Constants.color.PRIMARY
   },
   toolbar: {
     elevation: 4,
     height: 56,
-    backgroundColor: '#212121'
+    backgroundColor: Constants.color.PRIMARY_DARK
   },
   flatList: {
     flex: 1
@@ -24,10 +25,10 @@ export default StyleSheet.create({
   itemTitle: {
     flex: 1,
     fontSize: 18,
-    color: '#FFFFFF'
+    color: Constants.color.WHITE
   },
   itemIcon: {
-    color: '#ffffff',
+    color: Constants.color.WHITE,
     marginRight: 20
   },
   itemAloneBorder: {
@@ -43,7 +44,7 @@ export default StyleSheet.create({
   },
   itemSelectedBorder: {
     borderWidth: 3.5,
-    borderColor: '#ffffff'
+    borderColor: Constants.color.WHITE
   },
   emptyViewContainer: {
     flex: 1,

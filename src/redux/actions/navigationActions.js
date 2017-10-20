@@ -1,8 +1,16 @@
+import { BackHandler } from 'react-native'
 import { NavigationActions } from 'react-navigation'
-import { NEW_TASK } from '../../navigators/AppNavigator'
+import { NEW_TASK } from '../../navigators/AppNavigator/index'
 
 export function goBack () {
-  return NavigationActions.back()
+  return async (dispatch, getState) => {
+    const state = getState().navigationState
+    if (state.index) {
+      dispatch(NavigationActions.back())
+    } else {
+      BackHandler.exitApp()
+    }
+  }
 }
 
 export function openNewTask (params) {

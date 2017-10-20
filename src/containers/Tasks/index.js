@@ -1,22 +1,13 @@
 import React from 'react'
-import { FlatList, LayoutAnimation, NativeModules, StatusBar, Text, TouchableNativeFeedback, View } from 'react-native'
+import { FlatList, LayoutAnimation, NativeModules, Text, TouchableNativeFeedback, View } from 'react-native'
+import { connect } from 'react-redux'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import ActionButton from 'react-native-action-button'
+import { toggleTaskSelection, toggleTaskStatus } from '../../redux/actions/dataActions'
+import Constants from '../../utils/Constants'
 import styles from './styles'
 
 const {UIManager} = NativeModules
-
-const ACTION_SELECT_ALL = 0
-const ACTION_DELETE = 1
-
-export const TASK_STATUS_IN_PROGRESS = 0
-export const TASK_STATUS_DONE = 1
-
-export const MAX_COLOR_LIGHTNESS = 75
-export const MIN_COLOR_LIGHTNESS = 25
-export const COLOR_HUE = 25
-export const COLOR_SATURATION = 80
-
 UIManager.setLayoutAnimationEnabledExperimental &&
 UIManager.setLayoutAnimationEnabledExperimental(true)
 
@@ -31,17 +22,48 @@ const animationConfig = {
   },
 }
 
+export const MAX_COLOR_LIGHTNESS = 75
+export const MIN_COLOR_LIGHTNESS = 25
+export const COLOR_HUE = 25
+export const COLOR_SATURATION = 80
+
+@connect(
+  (state) => ({
+    items: state.dataState.tasks
+  }),
+  (dispatch) => ({
+    toggleTaskSelection: (id) => dispatch(toggleTaskSelection(id)),
+    toggleTaskStatus: (id) => dispatch(toggleTaskStatus(id))
+  }),
+  (stateProps, dispatchProps, ownProps) => ({
+    ...ownProps,
+    ...stateProps,
+    onPressItem: (item) => {
+      if (ownProps.selectedCount > 0) {
+        if (item.selected) ownProps.setSelectedCount(ownProps.selectedCount - 1)
+        else ownProps.setSelectedCount(ownProps.selectedCount + 1)
+        dispatchProps.toggleTaskSelection(item.id)
+      } else {
+        dispatchProps.toggleTaskStatus(item.id)
+      }
+    },
+    onLongPressItem: (item) => {
+      if (item.selected) ownProps.setSelectedCount(ownProps.selectedCount - 1)
+      else ownProps.setSelectedCount(ownProps.selectedCount + 1)
+      dispatchProps.toggleTaskSelection(item.id)
+    }
+  })
+)
 export default class Tasks extends React.PureComponent {
 
   state = {width: 0, height: 0}
 
-  constructor (props, context) {
-    super(props, context)
+  constructor (props) {
+    super(props)
 
     this._renderEmptyView = this._renderEmptyView.bind(this)
     this._renderItem = this._renderItem.bind(this)
     this._onLayout = this._onLayout.bind(this)
-    this._onActionSelected = this._onActionSelected.bind(this)
   }
 
   _renderEmptyView () {
@@ -78,7 +100,7 @@ export default class Tasks extends React.PureComponent {
     return (
       <TouchableNativeFeedback
         delayPressIn={0}
-        background={TouchableNativeFeedback.Ripple('#e5e5e5', false)}
+        background={TouchableNativeFeedback.Ripple(Constants.color.RIPPLE, false)}
         onPress={() => this.props.onPressItem(item, index)}
         onLongPress={() => this.props.onLongPressItem(item, index)}>
         <View
@@ -93,7 +115,7 @@ export default class Tasks extends React.PureComponent {
               (index * (MAX_COLOR_LIGHTNESS - MIN_COLOR_LIGHTNESS) / this.props.items.length)}%)`,
             }
           ]}>
-          {item.status === TASK_STATUS_DONE ? <Icon
+          {item.done ? <Icon
             style={styles.itemIcon}
             name={'check-circle'}
             size={24}
@@ -101,22 +123,11 @@ export default class Tasks extends React.PureComponent {
           <Text
             style={[
               styles.itemTitle,
-              {textDecorationLine: item.status === TASK_STATUS_DONE ? 'line-through' : 'none'}
+              {textDecorationLine: item.done ? 'line-through' : 'none'}
             ]}>{item.title}</Text>
         </View>
       </TouchableNativeFeedback>
     )
-  }
-
-  _onActionSelected (action) {
-    switch (action) {
-      case ACTION_SELECT_ALL:
-        this.props.onPressActionSelectAll()
-        break
-      case ACTION_DELETE:
-        this.props.onPressActionDelete()
-        break
-    }
   }
 
   _onLayout (event) {
@@ -130,51 +141,21 @@ export default class Tasks extends React.PureComponent {
   }
 
   render () {
-    let toolbar
-    let selectedTasks = 0
-
-    this.props.items.forEach(item => {
-      if (item.selected) selectedTasks++
-    })
-
-    if (this.props.items.some(item => item.selected)) {
-      toolbar = <Icon.ToolbarAndroid
-        style={styles.toolbar}
-        title={`${selectedTasks}`}
-        titleColor={'#ffffff'}
-        navIconName={'clear'}
-        onIconClicked={this.props.onPressToolbarIcon}
-        onActionSelected={this._onActionSelected}
-        actions={[
-          {title: 'Select all', iconName: 'select-all', show: 'always'},
-          {title: 'Delete', iconName: 'delete', show: 'always'}
-        ]}/>
-    } else {
-      toolbar = <Icon.ToolbarAndroid
-        style={styles.toolbar}
-        title={'Quick Tasks'}
-        titleColor={'#ffffff'}/>
-    }
-
     return (
       <View style={styles.container}>
-        <StatusBar
-          backgroundColor={'#000'}
-          barStyle="light-content"/>
-        {toolbar}
         <FlatList
           keyExtractor={(item, index) => index}
-          style={styles.flatList}
-          contentContainerStyle={this.props.items.length ? styles.flatListContent : {padding: 0}}
           data={this.props.items}
           keyboardShouldPersistTaps={'handled'}
           onLayout={this._onLayout}
           renderItem={this._renderItem}
-          ListEmptyComponent={this._renderEmptyView}/>
+          ListEmptyComponent={this._renderEmptyView}
+          contentContainerStyle={this.props.items.length ? styles.flatListContent : {padding: 0}}
+          style={styles.flatList}/>
         <ActionButton
           fixNativeFeedbackRadius
           onPress={this.props.onPressActionButton}
-          buttonTextStyle={{color: '#303030'}}
+          buttonTextStyle={{color: Constants.color.PRIMARY}}
           buttonColor={`hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS}%)`}/>
       </View>
     )

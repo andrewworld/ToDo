@@ -1,4 +1,14 @@
 export default {
+  color: {
+    PRIMARY: '#303030',
+    PRIMARY_DARK: '#212121',
+    RIPPLE: '#e5e5e5',
+    SELECTION: '#909090',
+
+    TRANSPARENT: '#00000000',
+    SEMITRANSPARENT: '#00000050',
+    WHITE: '#ffffff'
+  },
   actions: {
     CREATE_TASK: 'CREATE_TASK',
     DELETE_TASK: 'DELETE_TASK',

@@ -4,7 +4,7 @@ import { Provider } from 'react-redux'
 import { applyMiddleware, combineReducers, createStore } from 'redux'
 import dataReducer from './src/redux/reducers/dataReducer'
 import thunk from 'redux-thunk'
-import AppNavigator from './src/navigators/AppNavigator'
+import AppNavigatorContainer from './src/containers/AppNavigatorContainer'
 import navigationReducer from './src/redux/reducers/navigationReducer'
 import { persistStore } from 'redux-persist'
 
@@ -21,7 +21,7 @@ class App extends React.PureComponent {
   render () {
     return (
       <Provider store={store}>
-        <AppNavigator/>
+        <AppNavigatorContainer/>
       </Provider>
     )
   }

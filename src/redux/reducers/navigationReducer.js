@@ -1,5 +1,5 @@
 import { NavigationActions } from 'react-navigation'
-import { Navigator, TASKS } from '../../navigators/AppNavigator'
+import Navigator, { TASKS } from '../../navigators/AppNavigator/index'
 
 const initialState = Navigator.router.getStateForAction(NavigationActions.navigate({routeName: TASKS}))
 

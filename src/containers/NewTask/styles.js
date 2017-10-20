@@ -1,13 +1,10 @@
 import { StyleSheet } from 'react-native'
+import Constants from '../../utils/Constants'
 
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#303030'
-  },
-  toolbar: {
-    height: 56,
-    backgroundColor: '#303030'
+    backgroundColor: Constants.color.PRIMARY
   },
   textInput: {
     includeFontPadding: false,
@@ -17,7 +14,7 @@ export default StyleSheet.create({
     paddingLeft: 24,
     paddingRight: 24,
     fontSize: 24,
-    color: '#ffffff'
+    color: Constants.color.WHITE
   },
   keyboardToolbar: {
     flexDirection: 'row',
@@ -27,12 +24,12 @@ export default StyleSheet.create({
     paddingBottom: 8,
     paddingLeft: 16,
     paddingRight: 16,
-    backgroundColor: '#212121',
+    backgroundColor: Constants.color.PRIMARY_DARK,
     elevation: 4
   },
   textLength: {
     fontSize: 12,
-    color: '#FFF',
+    color: Constants.color.WHITE,
     marginLeft: 16,
     marginRight: 16
   },
@@ -45,7 +42,7 @@ export default StyleSheet.create({
   },
   sendButtonText: {
     fontWeight: '500',
-    color: '#212121',
+    color: Constants.color.PRIMARY_DARK,
     textAlignVertical: 'center',
     textAlign: 'center'
   }

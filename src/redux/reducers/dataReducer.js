@@ -1,4 +1,3 @@
-import { TASK_STATUS_DONE, TASK_STATUS_IN_PROGRESS } from '../../components/Tasks/index'
 import Constants from '../../utils/Constants'
 import { REHYDRATE } from 'redux-persist/constants'
 import { generateId } from '../../utils/helper'
@@ -18,15 +17,13 @@ export default function (state = initialState, action) {
         id: generateId(),
         creationDate: new Date,
         title: action.payload,
-        status: TASK_STATUS_IN_PROGRESS,
+        done: false,
         selected: false,
       })
       return {...state, tasks}
     }
     case Constants.actions.DELETE_TASK: {
-      let tasks = state.tasks.filter(item => item.id !== action.payload)
-
-      return {...state, tasks}
+      return {...state, tasks: state.tasks.filter(item => item.id !== action.payload)}
     }
     case Constants.actions.UPDATE_TASK: {
       let tasks = state.tasks.map(item => item)
@@ -39,22 +36,14 @@ export default function (state = initialState, action) {
       let tasks = state.tasks.map(item => item)
       let index = tasks.findIndex(item => item.id === action.payload)
 
-      if (tasks[index].selected) tasks[index] = {...tasks[index], selected: false}
-      else tasks[index] = {...tasks[index], selected: true}
+      tasks[index] = {...tasks[index], selected: !tasks[index].selected}
       return {...state, tasks}
     }
     case Constants.actions.TOGGLE_TASK_STATUS: {
       let tasks = state.tasks.map(item => item)
       let index = tasks.findIndex(item => item.id === action.payload)
 
-      switch (tasks[index].status) {
-        case TASK_STATUS_IN_PROGRESS:
-          tasks[index] = {...tasks[index], status: TASK_STATUS_DONE}
-          break
-        case TASK_STATUS_DONE:
-          tasks[index] = {...tasks[index], status: TASK_STATUS_IN_PROGRESS}
-          break
-      }
+      tasks[index] = {...tasks[index], done: !tasks[index].done}
       return {...state, tasks}
     }
     case Constants.actions.SELECT_TASKS: {
