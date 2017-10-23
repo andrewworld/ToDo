@@ -6,7 +6,7 @@ NativeModules.UIManager.setLayoutAnimationEnabledExperimental &&
 NativeModules.UIManager.setLayoutAnimationEnabledExperimental(true)
 
 const animationConfig = {
-  duration: 100,
+  duration: 70,
   create: {
     type: LayoutAnimation.Types.easeInEaseOut,
     property: LayoutAnimation.Properties.opacity,

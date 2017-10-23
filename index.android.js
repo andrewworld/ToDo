@@ -7,12 +7,12 @@ import thunk from 'redux-thunk'
 import AppNavigatorContainer from './src/containers/AppNavigatorContainer'
 import navigationReducer from './src/redux/reducers/navigationReducer'
 import { persistStore } from 'redux-persist'
-import selectableListReducer from './src/redux/reducers/selectableListReducer'
+import selectedTasksReducer from './src/redux/reducers/selectedTasksReducer'
 
 const reducer = combineReducers({
   navigationState: navigationReducer,
   dataState: dataReducer,
-  selectableListState: selectableListReducer
+  selectedTasksState: selectedTasksReducer
 })
 
 const store = createStore(reducer, applyMiddleware(thunk))

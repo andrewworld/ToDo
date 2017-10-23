@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { View } from 'react-native'
 import { Header, StackNavigator } from 'react-navigation'
-import { addKey, clearKeys, removeKey } from '../../redux/actions/selectableListActions'
+import { addKey, clearKeys, removeKey } from '../../redux/actions/selectedTasksActions'
 import { goBack, openNewTask } from '../../redux/actions/navigationActions'
 import { deleteTask } from '../../redux/actions/dataActions'
 import Tasks from '../../containers/Tasks/index'
@@ -70,7 +70,7 @@ export default StackNavigator(
 const TasksHeaderRightRedux = connect(
   (state) => ({
     tasks: state.dataState.tasks,
-    keys: state.selectableListState.keys
+    keys: state.selectedTasksState.keys
   }),
   (dispatch) => ({
     deleteTask: (key) => dispatch(deleteTask(key)),
