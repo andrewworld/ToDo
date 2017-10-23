@@ -1,50 +1,32 @@
 import React from 'react'
 import { TouchableNativeFeedback } from 'react-native'
+import { connect } from 'react-redux'
 import Constants from '../../utils/Constants'
-import List from '../List/index'
+import List from '../../components/List/index'
+import { addKey, removeKey } from '../../redux/actions/selectableListActions'
 
+@connect(
+  (state) => ({
+    keys: state.selectableListState.keys
+  }),
+  (dispatch) => ({
+    addKey: (key) => dispatch(addKey(key)),
+    removeKey: (key) => dispatch(removeKey(key)),
+  })
+)
 export default class SelectableList extends React.PureComponent {
-
-  static defaultProps = {
-    ListEmptyComponent: () => {},
-    onPressItem: () => {},
-    onLongPressItem: () => {},
-  }
-
-  state = {selectedItemsKeys: []}
 
   constructor (props) {
     super(props)
 
-    this.deselectAll = this.deselectAll.bind(this)
-    this._toggleSelection = this._toggleSelection.bind(this)
     this._checkIsSelected = this._checkIsSelected.bind(this)
     this._renderItem = this._renderItem.bind(this)
     this._onPressItem = this._onPressItem.bind(this)
     this._onLongPressItem = this._onLongPressItem.bind(this)
   }
 
-  get selectedItemsKeys () {
-    return this.state.selectedItemsKeys
-  }
-
-  deselectAll () {
-    this.setState({selectedItemsKeys: []})
-  }
-
-  _checkIsSelected (key) {
-    return this.state.selectedItemsKeys.some(item => item === key)
-  }
-
-  _toggleSelection (key) {
-    if (this._checkIsSelected(key)) {
-      this.setState({selectedItemsKeys: this.state.selectedItemsKeys.filter(item => item !== key)})
-    }
-    else {
-      let keys = this.state.selectedItemsKeys.map(item => item)
-      keys.push(key)
-      this.setState({selectedItemsKeys: keys})
-    }
+  _checkIsSelected (checkKey) {
+    return this.props.keys.some(key => key === checkKey)
   }
 
   _renderItem ({item, index}) {
@@ -62,12 +44,12 @@ export default class SelectableList extends React.PureComponent {
   }
 
   _onPressItem (item, index, selected) {
-    if (this.selectedItemsKeys.length) this._toggleSelection(item.key)
+    if (this.props.keys.length) selected ? this.props.removeKey(item.key) : this.props.addKey(item.key)
     this.props.onPressItem(item, index, selected)
   }
 
   _onLongPressItem (item, index, selected) {
-    this._toggleSelection(item.key)
+    this.props.addKey(item.key)
     this.props.onLongPressItem(item, index, selected)
   }
 
@@ -75,7 +57,7 @@ export default class SelectableList extends React.PureComponent {
     return (
       <List
         data={this.props.items}
-        extraData={this.state}
+        extraData={this.props.keys}
         renderItem={this._renderItem}
         ListEmptyComponent={this.props.ListEmptyComponent}/>
     )

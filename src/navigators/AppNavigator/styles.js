@@ -13,7 +13,7 @@ export default StyleSheet.create({
     fontSize: 22,
     includeFontPadding: false,
     textAlignVertical: 'center',
-    fontFamily: 'sans-serif-medium',
+    fontFamily: 'sans-serif',
     color: Constants.color.WHITE
   }
 })

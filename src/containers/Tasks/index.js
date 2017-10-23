@@ -6,7 +6,7 @@ import ActionButton from 'react-native-action-button'
 import { toggleTaskStatus } from '../../redux/actions/dataActions'
 import Constants from '../../utils/Constants'
 import styles from './styles'
-import SelectableList from '../../components/SelectableList/index'
+import SelectableList from '../SelectableList/index'
 
 export const MAX_COLOR_LIGHTNESS = 75
 export const MIN_COLOR_LIGHTNESS = 25
@@ -15,7 +15,8 @@ export const COLOR_SATURATION = 80
 
 @connect(
   (state) => ({
-    items: state.dataState.tasks
+    items: state.dataState.tasks,
+    selectedItemsKeys: state.selectableListState.keys
   }),
   (dispatch) => ({
     toggleTaskStatus: (key) => dispatch(toggleTaskStatus(key))

@@ -1,12 +1,15 @@
 import React from 'react'
+import { connect } from 'react-redux'
+import { View } from 'react-native'
 import { Header, StackNavigator } from 'react-navigation'
+import { addKey, clearKeys, removeKey } from '../../redux/actions/selectableListActions'
+import { goBack, openNewTask } from '../../redux/actions/navigationActions'
+import { deleteTask } from '../../redux/actions/dataActions'
 import Tasks from '../../containers/Tasks/index'
 import NewTask from '../../containers/NewTask/index'
 import StatusBarPage from '../../components/StatusBarPage/index'
 import HeaderIcon from '../../components/HeaderIcon/index'
-import { goBack, openNewTask } from '../../redux/actions/navigationActions'
 import Constants from '../../utils/Constants'
-import { Text, View } from 'react-native'
 import styles from './styles'
 
 export const TASKS = 'Tasks'
@@ -22,13 +25,18 @@ export default StackNavigator(
           setSelectedCount={(selectedCount) => props.navigation.setParams({selectedCount})}/>
       ),
       navigationOptions: ({navigation}) => ({
-        title: (!navigation.state.params || navigation.state.params.selectedCount === 0) && 'Quick Tasks',
+        title: navigation.state.params && navigation.state.params.selectedCount !== 0
+          ? navigation.state.params && navigation.state.params.selectedCount
+          : 'Quick Tasks',
         headerTintColor: Constants.color.WHITE,
         headerStyle: {
           backgroundColor: Constants.color.PRIMARY_DARK
         },
+        headerTitleStyle: navigation.state.params && navigation.state.params.selectedCount !== 0
+          ? styles.counter
+          : null,
         headerRight: navigation.state.params && navigation.state.params.selectedCount > 0
-          ? <TasksHeaderRight navigation={navigation}/>
+          ? <TasksHeaderRightRedux navigation={navigation}/>
           : null,
         headerLeft: navigation.state.params && navigation.state.params.selectedCount > 0
           ? <TasksHeaderLeft navigation={navigation}/>
@@ -59,25 +67,54 @@ export default StackNavigator(
   }
 )
 
-function TasksHeaderLeft ({navigation}) {
+const TasksHeaderRightRedux = connect(
+  (state) => ({
+    tasks: state.dataState.tasks,
+    keys: state.selectableListState.keys
+  }),
+  (dispatch) => ({
+    deleteTask: (key) => dispatch(deleteTask(key)),
+    addKey: (key) => dispatch(addKey(key)),
+    removeKey: (key) => dispatch(removeKey(key)),
+    clearKeys: () => dispatch(clearKeys())
+  }),
+  (stateProps, dispatchProps, ownProps) => ({
+    ...ownProps,
+    onPressDelete: () => {
+      stateProps.keys.forEach(key => dispatchProps.deleteTask(key))
+      dispatchProps.clearKeys()
+      ownProps.navigation.setParams({selectedCount: 0})
+    },
+    onPressSelect: () => {
+      stateProps.tasks.forEach(task => dispatchProps.addKey(task.key))
+      ownProps.navigation.setParams({selectedCount: stateProps.tasks.length})
+    }
+  })
+)(TasksHeaderRight)
+
+function TasksHeaderRight ({onPressDelete, onPressSelect}) {
   return (
     <View style={styles.rowContainer}>
       <HeaderIcon
-        icon={'close'}
-        onPress={() => navigation.setParams({selectedCount: 0})}
+        icon={'select-all'}
+        onPress={onPressSelect}
         iconStyle={styles.icon}/>
-      <Text style={styles.counter}>
-        {navigation.state.params && navigation.state.params.selectedCount}
-      </Text>
+      <HeaderIcon
+        icon={'delete'}
+        onPress={onPressDelete}
+        iconStyle={styles.icon}/>
     </View>
   )
 }
 
-function TasksHeaderRight ({navigation}) {
+function TasksHeaderLeft ({navigation}) {
   return (
     <HeaderIcon
-      icon={'delete'}
-      onPress={() => navigation.setParams({selectedCount: 0})}
+      icon={'close'}
+      onPress={() => {
+        navigation.dispatch(clearKeys())
+        navigation.setParams({selectedCount: 0})
+      }}
       iconStyle={styles.icon}/>
   )
 }
