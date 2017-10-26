@@ -1,5 +1,5 @@
 import React from 'react'
-import { Text, TouchableNativeFeedback, View } from 'react-native'
+import { Text, TouchableNativeFeedback,NativeModules, LayoutAnimation, View } from 'react-native'
 import { connect } from 'react-redux'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import ActionButton from 'react-native-action-button'
@@ -8,6 +8,20 @@ import { addKey, removeKey } from '../../redux/actions/selectedTasksActions'
 import List from '../../components/List'
 import Constants from '../../utils/Constants'
 import styles from './styles'
+
+NativeModules.UIManager.setLayoutAnimationEnabledExperimental &&
+NativeModules.UIManager.setLayoutAnimationEnabledExperimental(true)
+
+const animationConfig = {
+  duration: 70,
+  create: {
+    type: LayoutAnimation.Types.easeInEaseOut,
+    property: LayoutAnimation.Properties.opacity,
+  },
+  update: {
+    type: LayoutAnimation.Types.easeInEaseOut,
+  },
+}
 
 @connect(
   (state) => ({
@@ -125,6 +139,10 @@ export default class Tasks extends React.PureComponent {
         </View>
       </TouchableNativeFeedback>
     )
+  }
+
+  componentWillUpdate () {
+    LayoutAnimation.configureNext(animationConfig)
   }
 
   render () {

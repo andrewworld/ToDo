@@ -1,20 +1,6 @@
 import React from 'react'
-import { FlatList, LayoutAnimation, NativeModules, View } from 'react-native'
+import { FlatList, View } from 'react-native'
 import styles from './styles'
-
-NativeModules.UIManager.setLayoutAnimationEnabledExperimental &&
-NativeModules.UIManager.setLayoutAnimationEnabledExperimental(true)
-
-const animationConfig = {
-  duration: 70,
-  create: {
-    type: LayoutAnimation.Types.easeInEaseOut,
-    property: LayoutAnimation.Properties.opacity,
-  },
-  update: {
-    type: LayoutAnimation.Types.easeInEaseOut,
-  },
-}
 
 export default class List extends React.PureComponent {
 
@@ -48,10 +34,6 @@ export default class List extends React.PureComponent {
         {this.props.ListEmptyComponent()}
       </View>
     )
-  }
-
-  componentWillUpdate () {
-    LayoutAnimation.configureNext(animationConfig)
   }
 
   render () {
