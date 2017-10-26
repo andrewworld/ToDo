@@ -1,5 +1,5 @@
 import Constants from '../../utils/Constants'
-import { REHYDRATE } from 'redux-persist/constants'
+import { REHYDRATE } from 'redux-persist//lib/constants'
 import { generateId } from '../../utils/helper'
 
 const initialState = {
