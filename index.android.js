@@ -1,13 +1,13 @@
 import React from 'react'
 import { AppRegistry, AsyncStorage } from 'react-native'
 import { Provider } from 'react-redux'
+import thunk from 'redux-thunk'
+import { persistStore } from 'redux-persist'
 import { applyMiddleware, combineReducers, createStore } from 'redux'
 import dataReducer from './src/redux/reducers/dataReducer'
-import thunk from 'redux-thunk'
-import AppNavigatorContainer from './src/containers/AppNavigatorContainer'
 import navigationReducer from './src/redux/reducers/navigationReducer'
-import { persistStore } from 'redux-persist'
 import selectedTasksReducer from './src/redux/reducers/selectedTasksReducer'
+import AppNavigatorContainer from './src/containers/AppNavigatorContainer'
 
 const reducer = combineReducers({
   navigationState: navigationReducer,

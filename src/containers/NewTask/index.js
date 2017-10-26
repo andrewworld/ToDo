@@ -1,13 +1,10 @@
 import React from 'react'
 import { Text, TextInput, TouchableNativeFeedback, View } from 'react-native'
-import styles from './styles'
-import { COLOR_HUE, COLOR_SATURATION, MAX_COLOR_LIGHTNESS } from '../Tasks/index'
 import { connect } from 'react-redux'
 import { createTask } from '../../redux/actions/dataActions'
 import { goBack } from '../../redux/actions/navigationActions'
 import Constants from '../../utils/Constants'
-
-const TEXT_INPUT_MAX_LENGTH = 150
+import styles from './styles'
 
 @connect(
   null,
@@ -45,7 +42,7 @@ export default class NewTask extends React.PureComponent {
           selectionColor={Constants.color.SELECTION}
           placeholderTextColor={Constants.color.SELECTION}
           multiline
-          maxLength={TEXT_INPUT_MAX_LENGTH}
+          maxLength={Constants.constant.NEW_TASK_TEXT_INPUT_MAX_LENGTH}
           value={this.state.text}
           onChangeText={this._onChangeText}
           placeholder={'What would you like to do?'}
@@ -54,7 +51,7 @@ export default class NewTask extends React.PureComponent {
           style={styles.textInput}/>
         <View style={styles.keyboardToolbar}>
           <Text style={styles.textLength}>
-            {TEXT_INPUT_MAX_LENGTH - this.state.text.length}
+            {Constants.constant.NEW_TASK_TEXT_INPUT_MAX_LENGTH - this.state.text.length}
           </Text>
           <TouchableNativeFeedback
             delayPressIn={0}
@@ -63,8 +60,8 @@ export default class NewTask extends React.PureComponent {
             onPress={this._onPressSend}>
             <View style={[styles.sendButtonContainer, {
               backgroundColor: this.state.text.trim()
-                ? `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS}%)`
-                : `hsl(${COLOR_HUE}, ${20}%, ${MAX_COLOR_LIGHTNESS}%)`
+                ? `hsl(${Constants.constant.COLOR_HUE}, ${Constants.constant.COLOR_SATURATION}%, ${Constants.constant.MAX_COLOR_LIGHTNESS}%)`
+                : `hsl(${Constants.constant.COLOR_HUE}, ${20}%, ${Constants.constant.MAX_COLOR_LIGHTNESS}%)`
             }]}>
               <Text style={styles.sendButtonText}>
                 {'SEND'}

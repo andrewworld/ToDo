@@ -9,7 +9,7 @@ export default {
     SEMITRANSPARENT: '#00000050',
     WHITE: '#ffffff'
   },
-  actions: {
+  action: {
     CREATE_TASK: 'CREATE_TASK',
     DELETE_TASK: 'DELETE_TASK',
     UPDATE_TASK: 'UPDATE_TASK',
@@ -17,5 +17,12 @@ export default {
     ADD_KEY: 'ADD_KEY',
     REMOVE_KEY: 'REMOVE_KEY',
     CLEAR_KEYS: 'CLEAR_KEYS'
+  },
+  constant: {
+    NEW_TASK_TEXT_INPUT_MAX_LENGTH: 150,
+    MAX_COLOR_LIGHTNESS: 75,
+    MIN_COLOR_LIGHTNESS: 25,
+    COLOR_HUE: 25,
+    COLOR_SATURATION: 80
   }
 }

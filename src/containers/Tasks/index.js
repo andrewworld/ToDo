@@ -5,14 +5,9 @@ import Icon from 'react-native-vector-icons/MaterialIcons'
 import ActionButton from 'react-native-action-button'
 import { toggleTaskStatus } from '../../redux/actions/dataActions'
 import { addKey, removeKey } from '../../redux/actions/selectedTasksActions'
-import List from '../../components/List/index'
+import List from '../../components/List'
 import Constants from '../../utils/Constants'
 import styles from './styles'
-
-export const MAX_COLOR_LIGHTNESS = 75
-export const MIN_COLOR_LIGHTNESS = 25
-export const COLOR_HUE = 25
-export const COLOR_SATURATION = 80
 
 @connect(
   (state) => ({
@@ -58,7 +53,7 @@ export default class Tasks extends React.PureComponent {
       <Text
         style={[
           styles.emptyViewText,
-          {color: `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS}%)`}
+          {color: `hsl(${Constants.constant.COLOR_HUE}, ${Constants.constant.COLOR_SATURATION}%, ${Constants.constant.MAX_COLOR_LIGHTNESS}%)`}
         ]}>
         {`THE\nBEST\nTO-DO APP\nEVER`}
       </Text>
@@ -113,8 +108,8 @@ export default class Tasks extends React.PureComponent {
               elevation: selected ? 4 : 0,
               marginTop: selected ? 8 : 0,
               marginBottom: selected ? 8 : 0,
-              backgroundColor: `hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS -
-              (index * (MAX_COLOR_LIGHTNESS - MIN_COLOR_LIGHTNESS) / this.props.items.length)}%)`,
+              backgroundColor: `hsl(${Constants.constant.COLOR_HUE}, ${Constants.constant.COLOR_SATURATION}%, ${Constants.constant.MAX_COLOR_LIGHTNESS -
+              (index * (Constants.constant.MAX_COLOR_LIGHTNESS - Constants.constant.MIN_COLOR_LIGHTNESS) / this.props.items.length)}%)`,
             }
           ]}>
           {item.done ? <Icon
@@ -146,7 +141,7 @@ export default class Tasks extends React.PureComponent {
           fixNativeFeedbackRadius
           onPress={this.props.onPressActionButton}
           buttonTextStyle={{color: Constants.color.PRIMARY}}
-          buttonColor={`hsl(${COLOR_HUE}, ${COLOR_SATURATION}%, ${MAX_COLOR_LIGHTNESS}%)`}/>
+          buttonColor={`hsl(${Constants.constant.COLOR_HUE}, ${Constants.constant.COLOR_SATURATION}%, ${Constants.constant.MAX_COLOR_LIGHTNESS}%)`}/>
       </View>
     )
   }

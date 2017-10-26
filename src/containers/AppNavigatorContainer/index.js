@@ -2,8 +2,8 @@ import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 import { BackHandler } from 'react-native'
 import { addNavigationHelpers } from 'react-navigation'
-import { goBack } from '../redux/actions/navigationActions'
-import AppNavigator from '../navigators/AppNavigator/index'
+import { goBack } from '../../redux/actions/navigationActions'
+import AppNavigator from '../../navigators/AppNavigator/index'
 
 @connect(
   (state) => ({
