@@ -7,7 +7,7 @@ const initialState = {
 export default function (state = initialState, action) {
   switch (action.type) {
     case Constants.action.ADD_KEY: {
-      let keys = state.keys.map(key => key)
+      let keys = state.keys.slice()
 
       keys.push(action.payload)
 
